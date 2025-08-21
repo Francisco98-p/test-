@@ -1,7 +1,102 @@
 [
-  { "id": 1, "name": "Laptop Pro", "category": "Electronics", "price": 2499 },
-  { "id": 2, "name": "Noise Cancelling Headphones", "category": "Electronics", "price": 399 },
-  { "id": 3, "name": "Ultra‑Wide Monitor", "category": "Electronics", "price": 999 },
-  { "id": 4, "name": "Ergonomic Chair", "category": "Furniture", "price": 799 },
-  { "id": 5, "name": "Standing Desk", "category": "Furniture", "price": 1199 }
+  {
+    "id": 1,
+    "name": "Laptop Pro",
+    "category": "Electronics",
+    "price": 2499
+  },
+  {
+    "id": 2,
+    "name": "Noise Cancelling Headphones",
+    "category": "Electronics",
+    "price": 399
+  },
+  {
+    "id": 3,
+    "name": "Ultra‑Wide Monitor",
+    "category": "Electronics",
+    "price": 999
+  },
+  {
+    "id": 4,
+    "name": "Ergonomic Chair",
+    "category": "Furniture",
+    "price": 799
+  },
+  {
+    "id": 5,
+    "name": "Standing Desk",
+    "category": "Furniture",
+    "price": 1199
+  },
+  {
+    "name": "Nuevo Producto",
+    "description": "Descripción del producto",
+    "price": 299.99,
+    "category": "test",
+    "id": 6,
+    "createdAt": "2025-08-21T18:43:57.529Z"
+  },
+  {
+    "name": "Test Product 1755802296364",
+    "description": "Test description",
+    "price": 299.99,
+    "category": "test",
+    "id": 7,
+    "createdAt": "2025-08-21T18:51:36.600Z"
+  },
+  {
+    "name": "Item con precio 1755802302011",
+    "description": "Test",
+    "price": 150.5,
+    "id": 8,
+    "createdAt": "2025-08-21T18:51:42.865Z"
+  },
+  {
+    "name": "Item 1 1755802304529",
+    "description": "Test 1",
+    "id": 9,
+    "createdAt": "2025-08-21T18:51:45.243Z"
+  },
+  {
+    "name": "Item 2 1755802304529",
+    "description": "Test 2",
+    "id": 10,
+    "createdAt": "2025-08-21T18:51:47.372Z"
+  },
+  {
+    "name": "Test Item",
+    "value": 100,
+    "id": 11,
+    "createdAt": "2025-08-21T19:39:53.745Z"
+  },
+  {
+    "name": "Test Item",
+    "value": 100,
+    "id": 12,
+    "createdAt": "2025-08-21T20:29:28.342Z"
+  },
+  {
+    "name": "Test Item",
+    "value": 100,
+    "id": 13,
+    "createdAt": "2025-08-21T20:39:34.259Z"
+  },
+  {
+    "name": "Test Item From Jest",
+    "value": 150,
+    "category": "Testing",
+    "id": 14,
+    "createdAt": "2025-08-21T20:55:41.078Z"
+  },
+  {
+    "id": 15,
+    "name": "Test Item From Jest",
+    "price": 100
+  },
+  {
+    "id": 16,
+    "name": "Test Item From Jest",
+    "price": 100
+  }
 ]

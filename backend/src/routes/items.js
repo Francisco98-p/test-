@@ -1,66 +1,135 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const router = express.Router();
-const DATA_PATH = path.join(__dirname, '../../../data/items.json');
+const express = require("express");
+const fs = require("fs").promises;
+const path = require("path");
 
-// Utility to read data (intentionally sync to highlight blocking issue)
-function readData() {
-  const raw = fs.readFileSync(DATA_PATH);
-  return JSON.parse(raw);
+const router = express.Router();
+const dataPath = path.join(__dirname, "../../data/items.json");
+const dataDir = path.join(__dirname, "../../data");
+
+/**
+ * Helper: leer archivo asincrónicamente
+ */
+async function getItems() {
+  try {
+    const data = await fs.readFile(dataPath, "utf8");
+    return JSON.parse(data);
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      return [];
+    }
+    throw err;
+  }
 }
 
-// GET /api/items
-router.get('/', (req, res, next) => {
+/**
+ * Helper: guardar archivo asincrónicamente
+ * Agregada validación para crear el directorio si no existe.
+ */
+async function saveItems(items) {
+  // Asegurarse de que el directorio 'data' exista antes de escribir el archivo
   try {
-    const data = readData();
-    const { limit, q } = req.query;
-    let results = data;
-
-    if (q) {
-      // Simple substring search (sub‑optimal)
-      results = results.filter(item => item.name.toLowerCase().includes(q.toLowerCase()));
-    }
-
-    if (limit) {
-      results = results.slice(0, parseInt(limit));
-    }
-
-    res.json(results);
+    await fs.mkdir(dataDir, { recursive: true });
   } catch (err) {
-    next(err);
+    console.error("Error al crear el directorio 'data':", err);
+    throw err;
+  }
+  await fs.writeFile(dataPath, JSON.stringify(items, null, 2));
+}
+
+// GET /api/items → devuelve todos los ítems
+router.get("/", async (req, res) => {
+  try {
+    const items = await getItems();
+    res.json({ items });
+  } catch (err) {
+    res.status(500).json({ error: "Error al leer items" });
   }
 });
 
-// GET /api/items/:id
-router.get('/:id', (req, res, next) => {
+// GET /api/items/:id → devuelve un ítem por ID
+router.get("/:id", async (req, res) => {
   try {
-    const data = readData();
-    const item = data.find(i => i.id === parseInt(req.params.id));
-    if (!item) {
-      const err = new Error('Item not found');
-      err.status = 404;
-      throw err;
-    }
+    const items = await getItems();
+    const item = items.find(i => i.id === parseInt(req.params.id));
+    if (!item) return res.status(404).json({ error: "Item no encontrado" });
     res.json(item);
   } catch (err) {
-    next(err);
+    res.status(500).json({ error: "Error al leer item" });
   }
 });
 
-// POST /api/items
-router.post('/', (req, res, next) => {
+// POST /api/items → agrega un nuevo ítem
+router.post("/", async (req, res) => {
   try {
-    // TODO: Validate payload (intentional omission)
-    const item = req.body;
-    const data = readData();
-    item.id = Date.now();
-    data.push(item);
-    fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
-    res.status(201).json(item);
+    const items = await getItems();
+    const { name, category, price } = req.body;
+
+    if (!name || !category || typeof price !== 'number') {
+      return res.status(400).json({ error: "Faltan o son inválidos los campos requeridos (name, category, price)" });
+    }
+
+    const newId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
+    
+    const newItem = {
+      id: newId,
+      name,
+      category,
+      price
+    };
+
+    items.push(newItem);
+    await saveItems(items);
+
+    res.status(201).json(newItem);
   } catch (err) {
-    next(err);
+    res.status(500).json({ error: "Error al guardar item" });
   }
 });
 
-module.exports = router;
+// PUT /api/items/:id → actualiza un ítem existente
+router.put("/:id", async (req, res) => {
+  try {
+    const items = await getItems();
+    const itemIndex = items.findIndex(i => i.id === parseInt(req.params.id));
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ error: "Item no encontrado" });
+    }
+    
+    const updatedItem = { ...items[itemIndex], ...req.body, id: parseInt(req.params.id) };
+    items[itemIndex] = updatedItem;
+
+    await saveItems(items);
+    res.json(updatedItem);
+  } catch (err) {
+    res.status(500).json({ error: "Error al actualizar item" });
+  }
+});
+
+// DELETE /api/items/:id → elimina un ítem
+router.delete("/:id", async (req, res) => {
+  try {
+    let items = await getItems();
+    const initialLength = items.length;
+    items = items.filter(i => i.id !== parseInt(req.params.id));
+
+    if (items.length === initialLength) {
+      return res.status(404).json({ error: "Item no encontrado" });
+    }
+    
+    await saveItems(items);
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: "Error al eliminar item" });
+  }
+});
+
+/**
+ * Función de limpieza para las pruebas de Jest.
+ */
+function cleanup() {
+  return Promise.resolve();
+}
+
+module.exports = { router, cleanup };
+

@@ -1,0 +1,8 @@
+[
+  {
+    "id": 1,
+    "name": "Item para testear GET",
+    "category": "Test",
+    "price": 150.5
+  }
+]
